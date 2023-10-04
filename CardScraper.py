@@ -45,8 +45,13 @@ class CardScraper:
             
             container = soup.find_all(class_="pi-horizontal-group-item")
             for elements in container:
-               print(elements.text)
-
+                img_tag = elements.find('img')
+                if img_tag and 'alt' in img_tag.attrs:
+                    alt = img_tag['alt'].split(" ")[0]
+                    if alt.lower() == 'attack':
+                        attack = elements.text.replace(" ", "")
+                    elif alt.lower() == 'defense':
+                        defence = elements.text.replace(" ", "")
 
             result[card_name] = (fusiontype, attack, defence)
         return result
