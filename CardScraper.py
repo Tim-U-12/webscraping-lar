@@ -25,25 +25,28 @@ class CardScraper:
                 card_names.add(re.sub('/wiki/', '', link['href']))
         return list(card_names)
 
-    def get_fusion_types(self, card_names, base_link):
+    def get_card_info(self, card_names, base_link):
+        # stored as {name:(type, attack, def)}
         result = {}
         for card_name in card_names:
+            attack = None
+            defence = None
+            fusiontype = None
+
             card_url = base_link + card_name
             soup = self._get_soup(card_url)
-            a_tags = soup.find_all('a', title='Fusion')
 
+            a_tags = soup.find_all('a', title='Fusion')
             for a_tag in a_tags:
                 img_tag = a_tag.find('img')
                 if img_tag:
                     alt_value = img_tag.get('alt', None)
-                    result[card_name] = alt_value
+                    fusiontype = alt_value
+            
+            container = soup.find_all(class_="pi-horizontal-group-item")
+            for elements in container:
+               print(elements.text)
+
+
+            result[card_name] = (fusiontype, attack, defence)
         return result
-
-    def get_max_card_combat_stat(self, card_names):
-        '''
-        Returns the highest attack and defense for each card.
-        '''
-        for card_name in card_names:
-            pass
-
-
