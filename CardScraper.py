@@ -26,7 +26,6 @@ class CardScraper:
         return list(card_names)
 
     def get_card_info(self, card_names, base_link):
-        # stored as {name:(type, attack, def)}
         result = {}
         for card_name in card_names:
             attack = None
