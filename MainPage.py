@@ -1,28 +1,49 @@
+import re
 import requests
 from bs4 import BeautifulSoup
 
-class MainPage():
+class CardScraper:
     def __init__(self, url: str) -> None:
         self.url = url
-        self.response = requests.get(self.url)
-
-        if self.response.status_code == 200:
-             self.soup = BeautifulSoup(self.response.text, "html.parser")
-        else:
-            print(f"Failed to retrieve the page: {self.response.status_code}")
+        self.soup = self._get_soup(self.url)
     
+    def _get_soup(self, url):
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            return BeautifulSoup(response.text, "html.parser")
+        else:
+            raise Exception(f"Failed to retrieve the page: {response.status_code}")
+
     def search_class(self, class_name="category-page__members") -> list:
         return self.soup.find_all(class_=class_name)
 
-    def extract_links(self, container) -> list:
-        links = []
+    def get_card_names(self, container) -> list:
+        card_names = set()
         for element in container:
-            for link in element.findAll('a',href=True):
-                links.append(link['href'])
-        return links
+            for link in element.find_all('a', href=True):
+                card_names.add(re.sub('/wiki/', '', link['href']))
+        return list(card_names)
+
+    def get_fusion_types(self, card_names, base_link):
+        result = {}
+        for card_name in card_names:
+            card_url = base_link + card_name
+            soup = self._get_soup(card_url)
+            a_tags = soup.find_all('a', title='Fusion')
+
+            for a_tag in a_tags:
+                img_tag = a_tag.find('img')
+                if img_tag:
+                    alt_value = img_tag.get('alt', None)
+                    result[card_name] = alt_value
+        return result
+
+    def get_max_card_combat_stat(self, card_names):
+        '''
+        Returns the highest attack and defense for each card.
+        '''
+        for card_name in card_names:
+            pass
 
 
-url = "https://lil-alchemist.fandom.com/wiki/Category:Gold"
-x = MainPage(url)
-class_name = x.search_class()
-print(x.extract_links(class_name))
