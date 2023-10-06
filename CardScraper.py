@@ -26,7 +26,7 @@ class CardScraper:
         return list(card_names)
 
     def get_card_info(self, card_names, base_link):
-        result = {}
+        result = []
         for card_name in card_names:
             attack = None
             defence = None
@@ -52,5 +52,5 @@ class CardScraper:
                     elif alt.lower() == 'defense':
                         defence = elements.text.replace(" ", "")
 
-            result[card_name] = (fusiontype, attack, defence)
+            result.append([card_name, fusiontype, attack, defence])
         return result
